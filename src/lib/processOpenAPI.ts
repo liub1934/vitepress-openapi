@@ -44,6 +44,11 @@ export function processOpenAPI(spec: OpenAPI.Document): ParsedOpenAPI {
   parsedSpec = safelyGenerateSecurityUi(parsedSpec)
   parsedSpec = safelyGenerateSchemaUi(parsedSpec)
 
+  parsedSpec.externalDocs = spec.externalDocs || parsedSpec.externalDocs || {}
+  parsedSpec.info = spec.info || parsedSpec.info || {}
+  parsedSpec.servers = spec.servers || parsedSpec.servers || []
+  parsedSpec.tags = spec.tags || parsedSpec.tags || []
+
   return { ...parsedSpec }
 }
 

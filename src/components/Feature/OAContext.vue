@@ -2,31 +2,31 @@
 import { inject } from 'vue'
 import { OPENAPI_GLOBAL_KEY, OPENAPI_LOCAL_KEY } from '../../composables/useOpenapi'
 import { getOpenApiInstance } from '../../lib/getOpenApiInstance'
-import OAContext from './OAContext.vue'
 
 const props = defineProps({
   spec: {
     type: Object,
     required: false,
+    default: null,
   },
   openapi: {
     type: Object,
     required: false,
+    default: null,
   },
 })
 
+const globalOpenApi = inject(OPENAPI_GLOBAL_KEY, undefined)
+
+const localOpenApi = inject(OPENAPI_LOCAL_KEY, undefined)
+
 const openapi = props.openapi ?? getOpenApiInstance({
   custom: { spec: props.spec },
-  injected: inject(OPENAPI_GLOBAL_KEY, undefined),
-  injectedLocal: inject(OPENAPI_LOCAL_KEY, undefined),
+  injected: globalOpenApi,
+  injectedLocal: localOpenApi,
 })
 </script>
 
 <template>
-  <OAContext :openapi="openapi" :spec="spec">
-    <template #default="{ openapi }">
-      <OAInfo :spec="spec" :openapi="openapi" />
-      <OAServers :spec="spec" :openapi="openapi" />
-    </template>
-  </OAContext>
+  <slot :openapi="openapi" />
 </template>

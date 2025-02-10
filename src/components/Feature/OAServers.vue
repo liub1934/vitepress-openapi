@@ -2,6 +2,7 @@
 import { inject } from 'vue'
 import { OPENAPI_GLOBAL_KEY, OPENAPI_LOCAL_KEY } from '../../composables/useOpenapi'
 import { getOpenApiInstance } from '../../lib/getOpenApiInstance'
+import OAContext from './OAContext.vue'
 
 const props = defineProps({
   spec: {
@@ -19,26 +20,28 @@ const openapi = props.openapi ?? getOpenApiInstance({
   injected: inject(OPENAPI_GLOBAL_KEY, undefined),
   injectedLocal: inject(OPENAPI_LOCAL_KEY, undefined),
 })
-
-const servers = openapi.getServers()
 </script>
 
 <template>
-  <div>
-    <OAHeading level="h2">
-      {{ $t('Servers') }}
-    </OAHeading>
+  <OAContext :openapi="openapi" :spec="spec">
+    <template #default="{ openapi }">
+      <div>
+        <OAHeading level="h2">
+          {{ $t('Servers') }}
+        </OAHeading>
 
-    <div class="flex flex-col space-y-4">
-      <div v-for="server in servers" :key="server.url" class="flex flex-col p-3 gap-2 rounded bg-muted">
-        <span class="font-semibold select-all">
-          {{ server.url }}
-        </span>
+        <div class="flex flex-col space-y-4">
+          <div v-for="server in openapi.parsedSpec.servers" :key="server.url" class="flex flex-col p-3 gap-2 rounded bg-muted">
+            <span class="font-semibold select-all">
+              {{ server.url }}
+            </span>
 
-        <span v-if="server.description" class="text-gray-600 dark:text-gray-300">
-          {{ server.description }}
-        </span>
+            <span v-if="server.description" class="text-gray-600 dark:text-gray-300">
+              {{ server.description }}
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </OAContext>
 </template>
