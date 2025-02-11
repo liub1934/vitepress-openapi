@@ -156,7 +156,7 @@ export const DEFAULT_OPERATION_SLOTS: OperationSlot[] = [
 
 export const DEFAULT_BASE_URL = 'http://localhost'
 
-const availableLanguages: LanguageConfig[] = [
+export const availableLanguages: LanguageConfig[] = [
   {
     lang: 'curl',
     label: 'cURL',

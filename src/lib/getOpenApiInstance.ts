@@ -2,7 +2,7 @@ import type { Schemas } from '../composables/useOpenapi'
 import { DEFAULT_SCHEMA, useOpenapi } from '../composables/useOpenapi'
 import { createOpenApiInstance } from './createOpenApiInstance'
 
-export function getOpenApiInstance({
+export async function getOpenApiInstance({
   id,
   custom,
   injected,
@@ -34,9 +34,9 @@ export function getOpenApiInstance({
     }
   }
 
-  const globalSpec = useOpenapi()
+  const globalSpec = await useOpenapi()
   if (globalSpec) {
-    return globalSpec
+    return globalSpec.schemas.get(id)
   }
 
   console.error('No OpenAPI specification found.')

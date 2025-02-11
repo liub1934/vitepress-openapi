@@ -1,8 +1,11 @@
 import type { OpenAPI, OpenAPIV3 } from '@scalar/openapi-types'
 import type { JSONSchema } from '@trojs/openapi-dereference'
-import type { ParsedContent, ParsedOpenAPI, ParsedOperation } from '../types'
+import type { ParsedContent, ParsedOpenAPI, ParsedOperation, PlaygroundSecurityScheme } from '../types'
 import { dereferenceSync } from '@trojs/openapi-dereference'
 import { merge } from 'allof-merge'
+import { availableLanguages, useTheme } from '../composables/useTheme'
+import { buildRequest } from './codeSamples/buildRequest'
+import { generateCodeSample } from './codeSamples/generateCodeSample'
 import { getSchemaExample } from './examples/getSchemaExample'
 import { getSchemaUi } from './getSchemaUi'
 import { getSecurityUi } from './getSecurityUi'
@@ -34,7 +37,7 @@ function safelyGenerateSchemaUi(spec: ParsedOpenAPI): ParsedOpenAPI {
   }
 }
 
-export function processOpenAPI(spec: OpenAPI.Document): ParsedOpenAPI {
+export async function processOpenAPI(spec: OpenAPI.Document): Promise<ParsedOpenAPI> {
   if (import.meta.env.VITE_DEBUG) {
     console.warn('Processing OpenAPI spec:', spec)
   }
@@ -43,6 +46,7 @@ export function processOpenAPI(spec: OpenAPI.Document): ParsedOpenAPI {
   parsedSpec = safelyDereferenceSpec(parsedSpec)
   parsedSpec = safelyGenerateSecurityUi(parsedSpec)
   parsedSpec = safelyGenerateSchemaUi(parsedSpec)
+  parsedSpec = await generateCodeSamples(parsedSpec)
 
   parsedSpec.externalDocs = spec.externalDocs || parsedSpec.externalDocs || {}
   parsedSpec.info = spec.info || parsedSpec.info || {}
@@ -133,4 +137,60 @@ function enhanceResponses(operation: ParsedOperation): void {
       }
     }
   }
+}
+
+async function generateCodeSamples(spec: ParsedOpenAPI): Promise<ParsedOpenAPI> {
+  if (!spec?.paths) {
+    return spec
+  }
+
+  for (const [path, pathObject] of Object.entries(spec.paths)) {
+    for (const verb of Object.keys(pathObject) as OpenAPIV3.HttpMethods[]) {
+      const operation = pathObject[verb] as ParsedOperation
+
+      if (!operation) {
+        continue
+      }
+
+      const authorizations = operation.securityUi?.[0]?.schemes || []
+
+      const request = buildRequest({
+        path,
+        method: verb,
+        baseUrl: spec.servers?.[0]?.url || '',
+        parameters: operation.parameters || [],
+        authorizations: Object.entries(authorizations).map(([name, value]) => {
+          return {
+            ...spec.components?.securitySchemes?.[name],
+            playgroundValue: name,
+            label: String(name),
+          } as PlaygroundSecurityScheme
+        }),
+        body: operation.requestBody?.content?.['application/json']?.examples?.example?.value || {},
+        headers: {
+          ...(useTheme().getCodeSamplesDefaultHeaders() || {}),
+        },
+        variables: {},
+      })
+
+      // operation.codeSamples = {
+      //   ...(operation.codeSamples || {}),
+      //   curl: await generateCodeSample('curl', request),
+      //   javascript: await generateCodeSample('javascript', request),
+      //   php: await generateCodeSample('php', request),
+      //   python: await generateCodeSample('python', request),
+      // }
+
+      operation.codeSamples = await Promise.all(
+        availableLanguages.map(async (language) => {
+          return {
+            ...language,
+            source: await generateCodeSample(language.lang, request),
+          }
+        }),
+      )
+    }
+  }
+
+  return spec
 }

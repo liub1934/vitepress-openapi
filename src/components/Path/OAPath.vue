@@ -103,6 +103,8 @@ const request = ref(
     : {},
 )
 
+const codeSamples = props.operation.codeSamples
+
 function updateRequest(newRequest) {
   request.value = newRequest
 }
@@ -276,6 +278,7 @@ function updateSelectedServer(server) {
                 :path="operationPath"
                 :request="request"
                 :update-request="updateRequest"
+                :code-samples="codeSamples"
               />
             </template>
           </div>

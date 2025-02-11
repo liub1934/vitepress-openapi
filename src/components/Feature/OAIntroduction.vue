@@ -3,6 +3,8 @@ import { inject } from 'vue'
 import { OPENAPI_GLOBAL_KEY, OPENAPI_LOCAL_KEY } from '../../composables/useOpenapi'
 import { getOpenApiInstance } from '../../lib/getOpenApiInstance'
 import OAContext from './OAContext.vue'
+import OAInfoContent from './OAInfoContent.vue'
+import OAServersContent from './OAServersContent.vue'
 
 const props = defineProps({
   spec: {
@@ -24,9 +26,9 @@ const openapi = props.openapi ?? getOpenApiInstance({
 
 <template>
   <OAContext :openapi="openapi" :spec="spec">
-    <template #default="{ openapi }">
-      <OAInfo :spec="spec" :openapi="openapi" />
-      <OAServers :spec="spec" :openapi="openapi" />
+    <template #default="{ openapi: openapiContext }">
+      <OAInfoContent :openapi="openapiContext" />
+      <OAServersContent :openapi="openapiContext" />
     </template>
   </OAContext>
 </template>

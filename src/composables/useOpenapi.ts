@@ -22,7 +22,7 @@ const schemas: Schemas = new Map()
 
 let mainSchema: OpenAPI.Document | null = null
 
-export function useOpenapi({
+export async function useOpenapi({
   spec,
   config,
 }: {
@@ -34,24 +34,24 @@ export function useOpenapi({
   }
 
   if (spec) {
-    setupOpenApi({ spec, config })
+    await setupOpenApi({ spec, config })
   }
 
   /**
    * @deprecated Use `useOpenapi({ spec })` instead.
    */
-  function setSpec(value: OpenAPI.Document) {
+  async function setSpec(value: OpenAPI.Document) {
     console.warn('Deprecated usage of `setSpec`. Use `useOpenapi({ spec })` instead.')
-    setupOpenApi({ spec: value })
+    await setupOpenApi({ spec: value })
   }
 
-  function setupOpenApi({ spec, config }: { spec: OpenAPI.Document, config?: PartialUseThemeConfig }) {
-    addSchema({ id: DEFAULT_SCHEMA, spec, config })
+  async function setupOpenApi({ spec, config }: { spec: OpenAPI.Document, config?: PartialUseThemeConfig }) {
+    await addSchema({ id: DEFAULT_SCHEMA, spec, config })
     mainSchema = (schemas.get(DEFAULT_SCHEMA) ?? {}) as OpenAPI.Document
   }
 
-  function addSchema({ id, spec, config }: { id: string, spec: OpenAPI.Document, config?: PartialUseThemeConfig }) {
-    const openapi = createOpenApiInstance({
+  async function addSchema({ id, spec, config }: { id: string, spec: OpenAPI.Document, config?: PartialUseThemeConfig }) {
+    const openapi = await createOpenApiInstance({
       spec,
       defaultTag: config?.spec?.defaultTag,
       defaultTagDescription: config?.spec?.defaultTagDescription,

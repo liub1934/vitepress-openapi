@@ -8,9 +8,9 @@ import './style.css'
 
 export default {
   extends: DefaultTheme,
-  enhanceApp({ app }) {
+  enhanceApp: async ({ app }) => {
     // Set the OpenAPI specification.
-    const openapi = useOpenapi({
+    const openapi = await useOpenapi({
       spec,
     })
 
