@@ -44,7 +44,7 @@ const slots = defineSlots<Record<string, OperationSlot>>()
 </script>
 
 <template>
-  <OAContextProvider :spec="spec">
+  <OAContextProvider :spec="props.spec">
     <template #default="{ openapi }">
       <OAOperationContent
         v-bind="{

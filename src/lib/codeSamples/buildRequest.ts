@@ -122,7 +122,7 @@ export function buildRequest({
   const queryParameters = parameters.filter(parameter => parameter.in === 'query')
   const headerParameters = parameters.filter(parameter => parameter.in === 'header')
 
-  if (true || import.meta.env.VITE_DEBUG) {
+  if (import.meta.env.VITE_DEBUG) {
     console.warn('Building request with parameters:', {
       path,
       method,
