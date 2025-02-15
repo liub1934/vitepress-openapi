@@ -18,14 +18,10 @@ const props = defineProps({
 
 const globalOpenApi = inject(OPENAPI_GLOBAL_KEY, undefined)
 
-const localOpenApi = inject(OPENAPI_LOCAL_KEY, undefined)
-
 const openapi
-    // props.openapi ??
     = await getOpenApiInstance({
       custom: { spec: props.spec },
-      // injected: globalOpenApi,
-      // injectedLocal: localOpenApi,
+      injected: globalOpenApi,
     })
 
 provide(OPENAPI_LOCAL_KEY, openapi)

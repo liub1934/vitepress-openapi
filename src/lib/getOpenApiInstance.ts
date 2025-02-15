@@ -6,12 +6,10 @@ export async function getOpenApiInstance({
   id,
   custom,
   injected,
-  injectedLocal,
 }: {
   id?: string
   custom?: { spec: any, parsedSpec?: any }
   injected?: Schemas | any
-  injectedLocal?: ReturnType<typeof createOpenApiInstance>
 } = {}) {
   if (id === undefined) {
     id = DEFAULT_SCHEMA
@@ -19,10 +17,6 @@ export async function getOpenApiInstance({
 
   if (custom?.spec) {
     return createOpenApiInstance({ spec: custom.spec })
-  }
-
-  if (injectedLocal) {
-    return injectedLocal
   }
 
   if (injected && injected.schemas) {

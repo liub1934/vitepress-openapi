@@ -9,6 +9,7 @@ import { generateCodeSample } from './codeSamples/generateCodeSample'
 import { getSchemaExample } from './examples/getSchemaExample'
 import { getSchemaUi } from './getSchemaUi'
 import { getSecurityUi } from './getSecurityUi'
+import { resolveBaseUrl } from './resolveBaseUrl'
 
 function safelyMergeSpec(spec: OpenAPI.Document): ParsedOpenAPI {
   try {
@@ -144,6 +145,8 @@ async function generateCodeSamples(spec: ParsedOpenAPI): Promise<ParsedOpenAPI> 
     return spec
   }
 
+  const baseUrl = resolveBaseUrl(spec.servers?.[0]?.url)
+
   for (const [path, pathObject] of Object.entries(spec.paths)) {
     for (const verb of Object.keys(pathObject) as OpenAPIV3.HttpMethods[]) {
       const operation = pathObject[verb] as ParsedOperation
@@ -157,7 +160,7 @@ async function generateCodeSamples(spec: ParsedOpenAPI): Promise<ParsedOpenAPI> 
       const request = buildRequest({
         path,
         method: verb,
-        baseUrl: spec.servers?.[0]?.url || '',
+        baseUrl,
         parameters: operation.parameters || [],
         authorizations: Object.entries(authorizations).map(([name, value]) => {
           return {
@@ -172,14 +175,6 @@ async function generateCodeSamples(spec: ParsedOpenAPI): Promise<ParsedOpenAPI> 
         },
         variables: {},
       })
-
-      // operation.codeSamples = {
-      //   ...(operation.codeSamples || {}),
-      //   curl: await generateCodeSample('curl', request),
-      //   javascript: await generateCodeSample('javascript', request),
-      //   php: await generateCodeSample('php', request),
-      //   python: await generateCodeSample('python', request),
-      // }
 
       operation.codeSamples = await Promise.all(
         availableLanguages.map(async (language) => {

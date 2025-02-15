@@ -5,8 +5,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from '../../composables/useTheme'
 import OAPathsGroups from '../Path/OAPathsGroups.vue'
-import OAInfo from './OAInfo.vue'
-import OAServers from './OAServers.vue'
+import OAInfoContent from './OAInfoContent.vue'
+import OAServersContent from './OAServersContent.vue'
 
 const props = defineProps({
   spec: {
@@ -131,9 +131,9 @@ const groups = computed(() => {
 <template>
   <div class="flex flex-col space-y-10">
     <div v-if="showInfo || showServers">
-      <OAInfo v-if="showInfo" :openapi="openapi" />
+      <OAInfoContent v-if="showInfo" :openapi="openapi" />
 
-      <OAServers v-if="showServers" :openapi="openapi" />
+      <OAServersContent v-if="showServers" :openapi="openapi" />
     </div>
 
     <hr v-if="showInfo || showServers">
